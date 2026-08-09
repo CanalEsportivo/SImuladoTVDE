@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#102a43">
 <title>Simulado TVDE — 316 Questões</title>
+<meta name="app-version" content="2.0">
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--ink:#172b4d;--muted:#62748a;--accent:#1769aa;--ok:#16794b;--bad:#b42318;--line:#dbe4ee;--shadow:0 8px 24px rgba(16,42,67,.08)}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -55,7 +56,7 @@ const QUESTIONS = [{"idx":0,"number":1,"group":"Grupo 13010 — Comunicação e 
 const SIM_COUNT = 30;
 const PASS_SCORE = 27;
 const TIME_LIMIT = 60*60;
-let state = {screen:"home", mode:null, list:[], pos:0, selected:null, answers:[], startedAt:null, timer:null, checked:false};
+let state = {screen:"home", mode:null, list:[], pos:0, selected:null, answers:[], startedAt:null, timer:null, checked:false, finished:false};
 
 const app=document.getElementById("app");
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
@@ -81,6 +82,7 @@ function showThemes(){
  app.innerHTML=`<div class="card"><h2>Escolha um grupo</h2><div class="grid">${groups().map(g=>`<button class="mode" onclick='startStudy(QUESTIONS.filter(q=>q.group===${JSON.stringify(g)}),${JSON.stringify(g)})'><b>${esc(g)}</b><small>${QUESTIONS.filter(q=>q.group===g).length} questões</small></button>`).join("")}</div></div><button class="secondary" onclick="renderHome()">← Voltar</button>`;
 }
 function startSim(){
+ state.finished=false;
  state.mode="sim";state.list=shuffle(QUESTIONS).slice(0,SIM_COUNT);state.pos=0;state.answers=[];state.startedAt=Date.now();state.selected=null;state.checked=false;
  clearInterval(state.timer);state.timer=setInterval(()=>{if(Date.now()-state.startedAt>=TIME_LIMIT){finishSim()}else{const el=document.getElementById("timer");if(el){let s=Math.max(0,Math.floor((TIME_LIMIT-(Date.now()-state.startedAt))/1000));el.textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}}},250);
  renderQuestion();
@@ -124,6 +126,8 @@ function nextSim(){
 }
 function prevQ(){if(state.pos>0){state.pos--;state.selected=state.answers[state.pos]||null;state.checked=false;renderQuestion()}}
 function finishSim(){
+ if(state.finished)return;
+ state.finished=true;
  clearInterval(state.timer);
  let correct=0;
  state.list.forEach((q,i)=>{if(state.answers[i]===q.answer)correct++;else if(state.answers[i])saveMistake(q.idx)});
