@@ -84,7 +84,7 @@ function showThemes(){
 function startSim(){
  state.finished=false;
  state.mode="sim";state.list=shuffle(QUESTIONS).slice(0,SIM_COUNT);state.pos=0;state.answers=[];state.startedAt=Date.now();state.selected=null;state.checked=false;
- clearInterval(state.timer);state.timer=setInterval(()=>{if(Date.now()-state.startedAt>=TIME_LIMIT){finishSim()}else{const el=document.getElementById("timer");if(el){let s=Math.max(0,Math.floor((TIME_LIMIT-(Date.now()-state.startedAt))/1000));el.textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}}},250);
+ clearInterval(state.timer);state.timer=setInterval(()=>{if(Date.now()-state.startedAt>=TIME_LIMIT*1000){finishSim()}else{const el=document.getElementById("timer");if(el){let s=Math.max(0,Math.floor((TIME_LIMIT-(Date.now()-state.startedAt))/1000));el.textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}}},250);
  renderQuestion();
 }
 function startStudy(list,title){
