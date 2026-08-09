@@ -82,10 +82,36 @@ function showThemes(){
  app.innerHTML=`<div class="card"><h2>Escolha um grupo</h2><div class="grid">${groups().map(g=>`<button class="mode" onclick='startStudy(QUESTIONS.filter(q=>q.group===${JSON.stringify(g)}),${JSON.stringify(g)})'><b>${esc(g)}</b><small>${QUESTIONS.filter(q=>q.group===g).length} questões</small></button>`).join("")}</div></div><button class="secondary" onclick="renderHome()">← Voltar</button>`;
 }
 function startSim(){
- state.finished=false;
- state.mode="sim";state.list=shuffle(QUESTIONS).slice(0,SIM_COUNT);state.pos=0;state.answers=[];state.startedAt=Date.now();state.selected=null;state.checked=false;
- clearInterval(state.timer);state.timer=setInterval(()=>{if(Date.now()-state.startedAt>=TIME_LIMIT*1000){finishSim()}else{const el=document.getElementById("timer");if(el){let s=Math.max(0,Math.floor((TIME_LIMIT-(Date.now()-state.startedAt))/1000));el.textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`}}},250);
- renderQuestion();
+  state.finished=false;
+  state.mode="sim";
+  state.list=shuffle(QUESTIONS).slice(0,SIM_COUNT);
+  state.pos=0;
+  state.answers=[];
+  state.startedAt=Date.now();
+  state.selected=null;
+  state.checked=false;
+
+  clearInterval(state.timer);
+
+  state.timer=setInterval(()=>{
+    const elapsed=Date.now()-state.startedAt;
+    const remaining=Math.max(0,(TIME_LIMIT*1000)-elapsed);
+
+    const el=document.getElementById("timer");
+
+    if(el){
+      const s=Math.ceil(remaining/1000);
+      el.textContent=
+        `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+    }
+
+    if(remaining<=0){
+      clearInterval(state.timer);
+      finishSim();
+    }
+  },250);
+
+  renderQuestion();
 }
 function startStudy(list,title){
  if(!list.length){app.innerHTML=`<div class="card center"><h2>Nenhuma questão disponível</h2><p class="muted">Ainda não há questões erradas guardadas.</p><button onclick="renderHome()">Voltar</button></div>`;return}
